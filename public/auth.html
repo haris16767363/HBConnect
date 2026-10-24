@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HB Connect — Account</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0d19;color:#fff;font-family:Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{width:100%;max-width:420px;background:#15182a;border:1px solid #30344c;border-radius:24px;padding:25px}
+h1{margin:0 0 8px}h1 span{color:#9d80ff}
+p{color:#aeb3c9;font-size:14px;line-height:1.5}
+input,select,button{width:100%;padding:14px;margin-top:12px;border-radius:12px;border:1px solid #343850;background:#0d1020;color:white;font-size:15px}
+button{background:#8058f5;border:0;font-weight:bold;cursor:pointer}
+.secondary{background:#292d44}
+#message{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>HB <span>Connect</span></h1>
+  <p>Create your account or log in to continue.</p>
+
+  <div id="signupFields">
+    <input id="username" placeholder="Username" maxlength="25">
+    <select id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+  </div>
+
+  <input id="email" type="email" placeholder="Email address" autocomplete="email">
+  <input id="password" type="password" placeholder="Password (6+ characters)" autocomplete="current-password">
+
+  <button id="createBtn">Create account</button>
+  <button id="loginBtn" class="secondary">Log in</button>
+  <p id="message" role="status"></p>
+</div>
+
+<script>
+const API_KEY = "AIzaSyCw4cohu5IsMFOtR1N8F3LvTwI-d9SjiM8";
+const DB_URL = "https://hb-love-9cc26-default-rtdb.firebaseio.com";
+
+const $ = id => document.getElementById(id);
+const message = text => $("message").textContent = text;
+
+async function request(url, data) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(
+    result.error?.message || "Request failed"
+  );
+  return result;
+}
+
+async function createAccount() {
+  const username = $("username").value.trim();
+  const gender = $("gender").value;
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  if (!username || !email || password.length < 6) {
+    message("Username, valid email aur 6+ character password bharo.");
+    return;
+  }
+
+  try {
+    message("Account ban raha hai...");
+
+    const auth = await request(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
+      {email, password, returnSecureToken:true}
+    );
+
+    const profile = {
+      uid: auth.localId,
+      username,
+      gender,
+      email,
+      coins: 20,
+      createdAt: Date.now()
+    };
+
+    const save = await fetch(
+      `${DB_URL}/users/${auth.localId}.json?auth=${auth.idToken}`,
+      {
+        method: "PUT",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(profile)
+      }
+    );
+
+    if (!save.ok) {
+      throw new Error("Profile save nahi hua. Database rules check karo.");
+    }
+
+    localStorage.setItem("hbToken", auth.idToken);
+    localStorage.setItem("hbUserId", auth.localId);
+    localStorage.setItem("hbEmail", auth.email);
+
+    message("Account ban gaya! Tumhari ID: " + auth.localId);
+  } catch (error) {
+    message("Error: " + error.message);
+  }
+}
+
+async function login() {
+  const email = $("email").value.trim();
+  const password = $("password").value;
+
+  try {
+    message("Login ho raha hai...");
+
+    const auth = await request(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
+      {email, password, returnSecureToken:true}
+    );
+
+    localStorage.setItem("hbToken", auth.idToken);
+    localStorage.setItem("hbUserId", auth.localId);
+    localStorage.setItem("hbEmail", auth.email);
+
+    const response = await fetch(
+      `${DB_URL}/users/${auth.localId}.json?auth=${auth.idToken}`
+    );
+    const profile = await response.json();
+
+    if (!response.ok || !profile) {
+      message("Login ho gaya, lekin profile nahi mili.");
+      return;
+    }
+
+    message("Welcome " + profile.username + "! Tumhari ID: " + auth.localId);
+  } catch (error) {
+    message("Login error: " + error.message);
+  }
+}
+
+$("createBtn").addEventListener("click", createAccount);
+$("loginBtn").addEventListener("click", login);
+</script>
+</body>
+</html>

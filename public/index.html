@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b14">
+  <meta name="description" content="HB Connect — meet new people through random video chat.">
+  <title>HB Connect — Random Video Chat</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <a class="logo" href="/">HB <span>Connect</span></a>
+    <div class="connection">
+      <span id="connectionDot"></span>
+      <span id="connection">Connecting</span>
+    </div>
+  </header>
+
+  <section class="intro">
+    <p class="eyebrow">YOUR NEXT CONVERSATION</p>
+    <h1>Meet someone<br><span>new today.</span></h1>
+    <p class="sub">Connect with people around the world.</p>
+  </section>
+
+  <section class="preferences">
+    <label>
+      Your selection
+      <select id="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label>
+
+    <label>
+      Match preference
+      <select id="genderPref">
+        <option value="any">Everyone</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label>
+
+    <label>
+      Your country
+      <select id="country">
+        <option value="PK">🇵🇰 Pakistan</option>
+        <option value="IN">🇮🇳 India</option>
+        <option value="US">🇺🇸 United States</option>
+        <option value="GB">🇬🇧 United Kingdom</option>
+        <option value="CA">🇨🇦 Canada</option>
+        <option value="AE">🇦🇪 UAE</option>
+        <option value="SA">🇸🇦 Saudi Arabia</option>
+        <option value="TR">🇹🇷 Türkiye</option>
+        <option value="BD">🇧🇩 Bangladesh</option>
+        <option value="OTHER">🌍 Other</option>
+      </select>
+    </label>
+
+    <label>
+      Find people from
+      <select id="countryPref">
+        <option value="any">🌍 Any country</option>
+        <option value="PK">🇵🇰 Pakistan</option>
+        <option value="IN">🇮🇳 India</option>
+        <option value="US">🇺🇸 United States</option>
+        <option value="GB">🇬🇧 United Kingdom</option>
+        <option value="CA">🇨🇦 Canada</option>
+        <option value="AE">🇦🇪 UAE</option>
+        <option value="SA">🇸🇦 Saudi Arabia</option>
+        <option value="TR">🇹🇷 Türkiye</option>
+        <option value="BD">🇧🇩 Bangladesh</option>
+        <option value="OTHER">🌍 Other</option>
+      </select>
+    </label>
+    <p class="note">Country and gender are user-selected, not verified.</p>
+  </section>
+
+  <section class="remote-stage">
+    <video id="remoteVideo" autoplay playsinline></video>
+
+    <div id="remotePlaceholder" class="placeholder">
+      <div class="orb">◎</div>
+      <h2 id="placeholderTitle">Your next conversation awaits</h2>
+      <p id="placeholderText">Start a random call to find someone.</p>
+    </div>
+
+    <div class="video-label" id="guestLabel">Random guest</div>
+    <div class="timer" id="callTimer">00:00</div>
+
+    <div class="local-preview">
+      <video id="localVideo" autoplay muted playsinline></video>
+      <div id="localCameraOff" class="camera-off hidden">Camera off</div>
+      <span class="you-label">You</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 id="status">Ready to meet someone?</h2>
+    <p id="detail">Allow camera and microphone access to start.</p>
+
+    <div class="actions">
+      <button id="findBtn" class="primary">↗ Start random call</button>
+      <button id="nextBtn" disabled>⟳ Next</button>
+      <button id="endBtn" class="danger" disabled>✕ End</button>
+    </div>
+
+    <div class="media-controls">
+      <button id="micBtn" disabled>Mute mic</button>
+      <button id="cameraBtn" disabled>Turn camera off</button>
+      <button id="switchCameraBtn" disabled>Flip camera</button>
+    </div>
+  </section>
+
+  <section class="panel chat-panel">
+    <h2>💬 Live text chat</h2>
+    <div id="chatMessages" class="messages" aria-live="polite">
+      <p class="chat-note">Connect to someone before sending a message.</p>
+    </div>
+    <form id="chatForm">
+      <input id="chatInput" maxlength="500"
+        placeholder="Write a message..." autocomplete="off"
+        aria-label="Chat message" disabled>
+      <button class="primary" type="submit" id="sendBtn" disabled>
+        Send
+      </button>
+    </form>
+    <p class="note">Messages are relayed live and not saved by this app.</p>
+  </section>
+
+  <section class="panel safety-panel">
+    <h2>Stay safe</h2>
+    <p>Never share passwords, your home address or financial details.</p>
+    <div class="safety-actions">
+      <button id="reportBtn" disabled>⚑ Report user</button>
+      <button id="blockBtn" disabled>⊘ Block & disconnect</button>
+    </div>
+    <p class="note">Reports need moderator review. Do not use this service to harass others.</p>
+  </section>
+
+  <footer>
+    <p>HB Connect · Be respectful. Protect your privacy.</p>
+  </footer>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
